@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 /**
  * عقلانة — الدرس الثالث
  * الذكاء الاصطناعي في الحياة اليومية والصناعة
@@ -1242,6 +1242,3 @@ const Root: React.FC = () => (
 registerRoot(Root);
 
 export default AqlanaLesson;
-=======
-
->>>>>>> 8c1190001228b2ce74a67417abef85edec4f746c
