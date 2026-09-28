@@ -48,7 +48,7 @@ has_comp = "<Composition" in code
 mode = "entry" if has_register else ("root" if has_comp else "wrap")
 print(f"🔎 النمط المكتشف: {mode}")
 
-comp_id, fps, width, height, duration = "MyVideo", 30, 1920, 1080, 150
+comp_id, fps, width, height, duration = "AqlanaLesson", 30, 1920, 1080, 150
 
 # في حال النمط يحتاج إعدادات افتراضية أثناء التشغيل الآلي
 if mode == "entry":
