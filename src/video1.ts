@@ -1,4 +1,3 @@
-
 /**
  * عقلانة — الدرس الثالث
  * الذكاء الاصطناعي في الحياة اليومية والصناعة
@@ -9,7 +8,7 @@
  *   1. أنشئ مشروعاً: npm create video@latest
  *   2. ضع هذا الملف في src/AqlanaLesson.tsx
  *   3. (اختياري) ضع صوت الدرس: public/lesson.mp3 ثم فعّل سطر Audio
- *   4. npx remotion render AqlanaLesson out/aqlana-lesson.mp4[cite: 1]
+ *   4. npx remotion render AqlanaLesson out/aqlana-lesson.mp4
  */
 import React from "react";
 import {
@@ -882,7 +881,7 @@ const captions: Caption[] = [
   {
     "start": 805.7,
     "end": 810.14,
-    "text": "واضح جابها ازاي او جابها منين الفكرة الرئيسية"
+    "text": "واضح جابها ازاي أو جابها منين الفكرة الرئيسية"
   },
   {
     "start": 810.14,
