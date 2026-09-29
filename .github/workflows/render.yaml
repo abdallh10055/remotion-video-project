@@ -23,3 +23,9 @@ jobs:
 
       - name: Run Render Script
         run: python render.py
+# أضف هذه الخطوة لحفظ وتحميل الفيديو الناتج
+      - name: Upload Video Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aqlana-video
+          path: out/video.mp4
