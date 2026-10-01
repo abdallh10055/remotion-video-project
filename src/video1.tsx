@@ -1,10 +1,6 @@
-/* Explainer: يتطلب public/voice.m4a و remotion و @remotion/google-fonts. Composition id = AqlanaLesson */
-import React from 'react';
-import {AbsoluteFill,Audio,Composition,Sequence,interpolate,random,registerRoot,spring,staticFile,useCurrentFrame} from 'remotion';
-import {loadFont as cairo} from '@remotion/google-fonts/Cairo';
-import {loadFont as amiri} from '@remotion/google-fonts/Amiri';
-import {loadFont as quran} from '@remotion/google-fonts/AmiriQuran';
-import {loadFont as kufi} from '@remotion/google-fonts/ReemKufi';
+/* Explainer: يتطلب public/voice.m4a و remotion. الخطوط من Google Fonts تلقائيًا. Composition id = AqlanaLesson */
+import React,{useEffect,useState} from 'react';
+import {AbsoluteFill,Audio,Composition,Sequence,continueRender,delayRender,interpolate,random,registerRoot,spring,staticFile,useCurrentFrame} from 'remotion';
 export const VOICE_FILE='voice.m4a';
 const AB={position:'absolute'} as const;
 export const WIDTH=1080;
@@ -193,10 +189,11 @@ return clamp(0.04 + on*(0.18 + 0.7*w*(1 - (j/NB)*0.45)));
 const rms=clamp(0.06 + on*(0.45 + 0.35*Math.abs(Math.sin(frame*0.5))));
 return {rms,bands};
 };
-const FONT_BODY=cairo('normal',{weights:['600','800'],subsets:['arabic']}).fontFamily;
-const FONT_TEXT=amiri('normal',{weights:['400','700'],subsets:['arabic']}).fontFamily;
-const FONT_QURAN=quran('normal',{weights:['400'],subsets:['arabic']}).fontFamily;
-const FONT_TITLE=kufi('normal',{weights:['400','700'],subsets:['arabic']}).fontFamily;
+const FONT_BODY='Cairo, sans-serif';
+const FONT_TEXT='Amiri, serif';
+const FONT_QURAN="'Amiri Quran', Amiri, serif";
+const FONT_TITLE="'Reem Kufi', Cairo, sans-serif";
+const FONTS_READY:Promise<unknown>=typeof document==='undefined'?Promise.resolve() :new Promise<void>((res)=>{const l=document.createElement('link'); l.rel='stylesheet'; l.href='https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;700&display=swap'; l.onload=()=>res(); l.onerror=()=>res(); document.head.appendChild(l);}).then(()=>Promise.all(['600 40px Cairo','800 40px Cairo','400 40px Amiri','400 40px "Amiri Quran"','400 40px "Reem Kufi"'].map((f)=>document.fonts.load(f,'ابت'))));
 const C={
 gold:'#e3bf62',goldLight:'#fff0b8',goldDark:'#a67c1f',
 cream:'#fff7e3',emerald:'#0a3b36',emeraldDeep:'#05262a',teal:'#1e9c86',
@@ -887,6 +884,8 @@ case 'phrases':return <PhrasesScene start={c.start} phrases={c.phrases} />;
 }
 };
 export const Explainer:React.FC=()=>{
+const [fh]=useState(()=>delayRender('fonts'));
+useEffect(()=>{FONTS_READY.then(()=>continueRender(fh)).catch(()=>continueRender(fh));},[fh]);
 return (
 <AbsoluteFill style={{backgroundColor:'#031417'}}>
 <Background />
