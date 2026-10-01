@@ -10,7 +10,7 @@
  *              fps={FPS} width={WIDTH} height={HEIGHT} />   أو استخدم Root المصدَّر.
  */
 import React from 'react';
-import {AbsoluteFill, Audio, Composition, Sequence, interpolate, random, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Audio, Composition, Sequence, interpolate, random, registerRoot, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import {loadFont as cairo} from '@remotion/google-fonts/Cairo';
 import {loadFont as amiri} from '@remotion/google-fonts/Amiri';
 import {loadFont as quran} from '@remotion/google-fonts/AmiriQuran';
@@ -858,5 +858,4 @@ const KitchenScene: React.FC<{start: number; items: Item[]}> = ({start, items}) 
           <path d="M-280 -10 H280" stroke={C.gold} strokeWidth="3" opacity="0.5" />
           <path d="M-330 -70 h-60 M330 -70 h60" stroke={C.gold} strokeWidth="14" strokeLinecap="round" />
           {[0, 1, 2, 3].map((i) => {
-            const t = ((f * 2 + i * 40) % 160) / 160;
-  
+            const t = ((f * 2 + i * 40) % 
