@@ -1,0 +1,31 @@
+{
+  "name": "arabic-motion-video-builder",
+  "version": "3.0.0",
+  "description": "Build Arabic motion graphics videos from SRT files with Remotion",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.js",
+    "studio": "remotion studio",
+    "preview": "remotion preview src/index.tsx",
+    "render": "remotion render src/index.tsx ArabicMotionLesson out/video.mp4",
+    "render:props": "node scripts/render_with_props.js",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.0",
+    "@remotion/google-fonts": "4.0.0",
+    "@remotion/transitions": "4.0.0",
+    "@remotion/player": "4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
