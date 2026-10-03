@@ -1,0 +1,156 @@
+name: 🎬 Remotion Video Render
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'remotion/**'
+      - 'srt_output/**'
+      - 'require_sounds/**'
+      - '.github/workflows/render_remotion.yml'
+  workflow_dispatch:
+    inputs:
+      video_name:
+        description: 'اسم الفيديو (بدون امتداد)'
+        required: false
+        default: 'sample'
+      title:
+        description: 'عنوان الفيديو'
+        required: false
+        default: 'درس جديد'
+      background_color:
+        description: 'لون الخلفية (hex)'
+        required: false
+        default: '#0f4c3a'
+      text_color:
+        description: 'لون النص (hex)'
+        required: false
+        default: '#ffffff'
+      accent_color:
+        description: 'لون التمييز (hex)'
+        required: false
+        default: '#ffd700'
+      font_size:
+        description: 'حجم الخط'
+        required: false
+        default: '48'
+      show_character:
+        description: 'إظهار الشخصية (true/false)'
+        required: false
+        default: 'true'
+      show_title:
+        description: 'إظهار العنوان (true/false)'
+        required: false
+        default: 'true'
+      show_subtitles:
+        description: 'إظهار الترجمة (true/false)'
+        required: false
+        default: 'true'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: remotion/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd remotion
+          npm install --legacy-peer-deps
+          echo "✅ Dependencies installed"
+
+      - name: Create props JSON
+        run: |
+          mkdir -p remotion/props
+          cat > remotion/props/video_props.json << 'EOF'
+          {
+            "title": "${{ github.event.inputs.title || 'درس جديد' }}",
+            "srtContent": "",
+            "audioSrc": "",
+            "backgroundColor": "${{ github.event.inputs.background_color || '#0f4c3a' }}",
+            "textColor": "${{ github.event.inputs.text_color || '#ffffff' }}",
+            "accentColor": "${{ github.event.inputs.accent_color || '#ffd700' }}",
+            "fontFamily": "Cairo, sans-serif",
+            "fontSize": ${{ github.event.inputs.font_size || 48 }},
+            "showCharacter": ${{ github.event.inputs.show_character || true }},
+            "showTitle": ${{ github.event.inputs.show_title || true }},
+            "showSubtitles": ${{ github.event.inputs.show_subtitles || true }}
+          }
+          EOF
+          echo "✅ Props JSON created"
+
+      - name: Load SRT content
+        run: |
+          VIDEO_NAME="${{ github.event.inputs.video_name || 'sample' }}"
+          if [ -f "srt_output/${VIDEO_NAME}.srt" ]; then
+            SRT_CONTENT=$(cat "srt_output/${VIDEO_NAME}.srt")
+            # Escape for JSON
+            SRT_ESCAPED=$(echo "$SRT_CONTENT" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
+            # Update props JSON with SRT content
+            python3 -c "
+          import json
+          with open('remotion/props/video_props.json', 'r') as f:
+              props = json.load(f)
+          props['srtContent'] = '''$SRT_CONTENT'''
+          with open('remotion/props/video_props.json', 'w') as f:
+              json.dump(props, f, ensure_ascii=False, indent=2)
+          "
+            echo "✅ SRT content loaded: ${VIDEO_NAME}.srt"
+          else
+            echo "⚠️ No SRT file found for ${VIDEO_NAME}, using empty subtitles"
+          fi
+
+      - name: Render video with Remotion
+        run: |
+          cd remotion
+          npx remotion render src/index.tsx ArabicMotionLesson out/video.mp4 \
+            --props=./props/video_props.json \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=18 \
+            2>&1 | tee render.log
+          
+          if [ -f "out/video.mp4" ]; then
+            SIZE=$(du -h out/video.mp4 | cut -f1)
+            echo "✅ Video rendered: out/video.mp4 ($SIZE)"
+          else
+            echo "❌ Video rendering failed"
+            exit 1
+          fi
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: remotion-video-${{ github.run_number }}
+          path: remotion/out/video.mp4
+          retention-days: 60
+          if-no-files-found: error
+
+      - name: Upload render log
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-log-${{ github.run_number }}
+          path: remotion/render.log
+          retention-days: 7
+
+      - name: Summary
+        run: |
+          echo "## 🎬 Render Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- Video: \`remotion/out/video.mp4\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Size: $(du -h remotion/out/video.mp4 2>/dev/null | cut -f1 || echo 'N/A')" >> $GITHUB_STEP_SUMMARY
+          echo "- Props: \`remotion/props/video_props.json\`" >> $GITHUB_STEP_SUMMARY
