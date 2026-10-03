@@ -1,4 +1,4 @@
-import {Composition} from 'remotion';
+import {Composition, registerRoot} from 'remotion';
 import {ArabicMotionLesson} from './ArabicMotionLesson';
 
 export const RemotionRoot: React.FC = () => {
