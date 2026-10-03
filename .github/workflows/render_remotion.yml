@@ -65,13 +65,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: remotion/package-lock.json
 
       - name: Install dependencies
         run: |
           cd remotion
-          npm install --legacy-peer-deps
+          npm install --legacy-peer-deps 2>&1 | tail -20
           echo "✅ Dependencies installed"
 
       - name: Create props JSON
@@ -98,15 +96,13 @@ jobs:
         run: |
           VIDEO_NAME="${{ github.event.inputs.video_name || 'sample' }}"
           if [ -f "srt_output/${VIDEO_NAME}.srt" ]; then
-            SRT_CONTENT=$(cat "srt_output/${VIDEO_NAME}.srt")
-            # Escape for JSON
-            SRT_ESCAPED=$(echo "$SRT_CONTENT" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")
-            # Update props JSON with SRT content
             python3 -c "
           import json
+          with open('srt_output/${VIDEO_NAME}.srt', 'r') as f:
+              srt = f.read()
           with open('remotion/props/video_props.json', 'r') as f:
               props = json.load(f)
-          props['srtContent'] = '''$SRT_CONTENT'''
+          props['srtContent'] = srt
           with open('remotion/props/video_props.json', 'w') as f:
               json.dump(props, f, ensure_ascii=False, indent=2)
           "
