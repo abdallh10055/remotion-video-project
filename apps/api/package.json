@@ -1,0 +1,20 @@
+{
+  "name": "@remotion-video-studio/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "node --watch dist/index.js",
+    "type-check": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@remotion-video-studio/core": "workspace:*",
+    "@remotion-video-studio/queue": "workspace:*",
+    "@remotion-video-studio/worker": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
